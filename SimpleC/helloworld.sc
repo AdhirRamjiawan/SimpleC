@@ -1,0 +1,4 @@
+﻿
+main() {
+  output("Hello world!");
+}
