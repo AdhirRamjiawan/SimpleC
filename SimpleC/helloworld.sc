@@ -1,4 +1,6 @@
 ﻿
 main() {
-  output("Hello world!");
+  output("Hello");
+  output(" ");
+  outputline("world!");
 }
