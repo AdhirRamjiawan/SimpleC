@@ -24,7 +24,6 @@ namespace SimpleC
         public string Value;
     }
     
-    
     class MethodParameter
     {
         public int ParameterID;
@@ -40,6 +39,7 @@ namespace SimpleC
 
     class Program
     {
+        static readonly string version = "1.0.0";
         static bool stringStarted = false;
         static bool debugMode = false;
         static string previousToken = string.Empty;
@@ -52,10 +52,10 @@ namespace SimpleC
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Simple C interpreter");
-
+            
             if (args.Length < 1)
             {
+                Console.WriteLine($"Simple C interpreter {version}");
                 Console.WriteLine("invalid usage");
                 return;
             }
@@ -89,7 +89,7 @@ namespace SimpleC
 
                 char currentChar = sourceCode[sourceCodeIndex];
 
-                if (!stringStarted && (currentChar == ' ' || currentChar == '\n' || currentChar == '\r'))
+                if (!stringStarted && (currentChar == '\t' || currentChar == ' ' || currentChar == '\n' || currentChar == '\r'))
                 {
                     sourceCodeIndex++;
                     continue;
