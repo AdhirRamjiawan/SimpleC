@@ -1,58 +1,20 @@
-﻿using System;
+﻿using SimpleC.DataStructures;
+using SimpleC.TokenProcessors;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace SimpleC
 {
-
-    public enum ParameterType
-    {
-        String = 0
-    }
-
-    public enum TokenType
-    {
-        String = 0,
-        Method,
-        Symbol
-    }
-
-    class StringTableEntry
-    {
-        public int ID;
-        public string Value;
-    }
-    
-    class MethodParameter
-    {
-        public int ParameterID;
-        public ParameterType Type;
-    }
-
-    class MethodCallTableEntry
-    {
-        public int ID;
-        public string MethodName;
-        public List<MethodParameter> Parameters;
-    }
-
     class Program
     {
         static readonly string version = "1.0.0";
-        static bool stringStarted = false;
-        static bool debugMode = false;
-        static string previousToken = string.Empty;
-        static int currentMethodId = -1;
-        static Stack<TokenType> currentTokenStack = new Stack<TokenType>();
-
-        static List<StringTableEntry> stringTable = new List<StringTableEntry>();
-        static List<MethodCallTableEntry> methodCallsTable = new List<MethodCallTableEntry>();
-        static List<int> executionSequence = new List<int>();
+        
+        static ProgramState programState = new ProgramState();
 
         static void Main(string[] args)
         {
-            
             if (args.Length < 1)
             {
                 Console.WriteLine($"Simple C interpreter {version}");
@@ -64,7 +26,7 @@ namespace SimpleC
             {
                 if (args[1] == "-d")
                 {
-                    debugMode = true;
+                    Debug.DebugMode= true;
                 }
             }
 
@@ -76,7 +38,7 @@ namespace SimpleC
                 sourceCode = reader.ReadToEnd();
             }
 
-            if (debugMode)
+            if (Debug.DebugMode)
             {
                 Console.WriteLine($"Executing {sourceCodeFilePath}...");
             }
@@ -89,14 +51,13 @@ namespace SimpleC
 
                 char currentChar = sourceCode[sourceCodeIndex];
 
-                if (!stringStarted && (currentChar == '\t' || currentChar == ' ' || currentChar == '\n' || currentChar == '\r'))
+                if (!programState.StringStarted && (currentChar == '\t' || currentChar == ' ' || currentChar == '\n' || currentChar == '\r'))
                 {
                     sourceCodeIndex++;
                     continue;
                 }
 
-                ProcessCurrentCharacter(ref token, currentChar, ref sourceCodeIndex);
-
+                ProcessCurrentCharacter(ref token, currentChar);
 
                 sourceCodeIndex++;
             }
@@ -106,32 +67,24 @@ namespace SimpleC
 
         static void ExecuteProgram()
         {
-            foreach (var methodCallId in executionSequence)
+            foreach (var methodCallId in programState.ExecutionSequence)
             {
-                DebugLog($"executing method: {methodCallId}");
+                Debug.Log($"executing method: {methodCallId}");
 
-                var methodCall = methodCallsTable.Where(mc => mc.ID == methodCallId).FirstOrDefault();
+                var methodCall = programState.MethodCallsTable.Where(mc => mc.ID == methodCallId).FirstOrDefault();
                 ExecuteMethod(methodCall);
-            }
-        }
-
-        static void DebugLog(string message)
-        {
-            if (debugMode)
-            {
-                Console.WriteLine(message);
             }
         }
 
         static void ExecuteMethod(MethodCallTableEntry methodCall)
         {
-            DebugLog($"Calling method: {methodCall.MethodName}");
+            Debug.Log($"Calling method: {methodCall.MethodName}");
 
             foreach (var param in methodCall.Parameters)
             {
                 if (param.Type == ParameterType.String)
                 {
-                    var stringTableEntry = stringTable.Where(sv => sv.ID == param.ParameterID).FirstOrDefault();
+                    var stringTableEntry = programState.StringTable.Where(sv => sv.ID == param.ParameterID).FirstOrDefault();
 
                     if (methodCall.MethodName == "output")
                     {
@@ -145,85 +98,22 @@ namespace SimpleC
             }
         }
 
-        static void ProcessCurrentCharacter(ref string token, char currentChar, ref int sourceCodeIndex)
+        static void ProcessCurrentCharacter(ref string token, char curChar)
         {
-            if (currentChar == '{')
-            {
-                DebugLog("begin code block");
-                currentTokenStack.Push(TokenType.Symbol);
-            }
-            else if (currentChar == '}')
-            {
-                DebugLog("end code block");
-                currentTokenStack.Push(TokenType.Symbol);
-            }
-            else if (currentChar == ';')
-            {
-                DebugLog("end statement");
-                currentTokenStack.Clear();
 
-                currentMethodId = -1;
-            }
-            else if (currentChar == '(')
-            {
-                if (token != string.Empty)
-                {
-                    DebugLog($"method found: {token}");
-
-                    currentMethodId = methodCallsTable.Count;
-                    currentTokenStack.Push(TokenType.Method);
-                    methodCallsTable.Add(new MethodCallTableEntry() { ID = currentMethodId, MethodName = token });
-                }
-
-                DebugLog("begin brace");
-                currentTokenStack.Push(TokenType.Symbol);
-            }
-            else if (currentChar == ')')
-            {
-                DebugLog("end brace");
-                currentTokenStack.Clear();
-                currentMethodId = -1;
-                //currentTokenStack.Push(TokenType.Symbol);
-            }
-            else if (currentChar == '"')
-            {
-                if (stringStarted)
-                {
-                    DebugLog($"string found: \"{token}\"");
-                    DebugLog("ending string");
-
-                    var stringID = stringTable.Count;
-                    stringTable.Add(new StringTableEntry() { ID = stringID, Value = token });
-
-                    var stackContainsMethod = currentTokenStack.Contains(TokenType.Method);
-                    if (stackContainsMethod && currentMethodId > -1)
-                    {
-                        var methodCall = methodCallsTable.Where(mc => mc.ID == currentMethodId).FirstOrDefault();
-
-                        methodCall.Parameters = new List<MethodParameter>() 
-                        {
-                            new MethodParameter() { ParameterID = stringID, Type = ParameterType.String }
-                        };
-
-                        executionSequence.Add(methodCall.ID);
-                    }
-
-                    currentTokenStack.Push(TokenType.Symbol);
-                }
-                else
-                {
-                    DebugLog("starting string");
-                }
-
-                stringStarted = !stringStarted;
-            }
+            if      (curChar == Syntax.OpenCurlyBrace ) { OpenCurlyBraceProcessor.Process(programState, token); }
+            else if (curChar == Syntax.CloseCurlyBrace) { CloseCurlyBraceProcessor.Process(programState, token); }
+            else if (curChar == Syntax.EndStatement   ) { EndStatementProcessor.Process(programState, token); }
+            else if (curChar == Syntax.OpenBrace      ) { OpenBraceProcessor.Process(programState, token); }
+            else if (curChar == Syntax.CloseBrace     ) { CloseBraceProcessor.Process(programState, token); }
+            else if (curChar == Syntax.DoubleQoute    ) { DoubleQuoteProcessor.Process(programState, token); }
             else
             {
-                token += currentChar;
+                token += curChar;
                 return;
             }
 
-            previousToken = token;
+            programState.PreviousToken = token;
             token = string.Empty;
         }
     }
