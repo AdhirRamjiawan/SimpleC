@@ -14,5 +14,10 @@ namespace SimpleC
         internal const char CloseCurlyBrace = '}';
         internal const char EndStatement = ';';
         internal const char DoubleQoute = '"';
+        internal const char Assignment = '=';
+        internal const char Space = ' ';
+        internal const char Tab = '\t';
+        internal const char CarriageReturn = '\r';
+        internal const char Newline = '\n';
     }
 }

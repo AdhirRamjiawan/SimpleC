@@ -1,10 +1,5 @@
 ﻿using SimpleC.DataStructures;
 using SimpleC.TokenProcessors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimpleC
 {
@@ -17,14 +12,7 @@ namespace SimpleC
 
             while (sourceCodeIndex < sourceCode.Length)
             {
-
                 char currentChar = sourceCode[sourceCodeIndex];
-
-                if (!programState.StringStarted && (currentChar == '\t' || currentChar == ' ' || currentChar == '\n' || currentChar == '\r'))
-                {
-                    sourceCodeIndex++;
-                    continue;
-                }
 
                 ProcessCurrentCharacter(programState, ref token, currentChar);
 
@@ -34,13 +22,20 @@ namespace SimpleC
 
         private static void ProcessCurrentCharacter(ProgramState programState, ref string token, char curChar)
         {
-
-            if (curChar == Syntax.OpenCurlyBrace) { OpenCurlyBraceProcessor.Process(programState, token); }
+            if      (curChar == Syntax.OpenCurlyBrace) { OpenCurlyBraceProcessor.Process(programState, token); }
             else if (curChar == Syntax.CloseCurlyBrace) { CloseCurlyBraceProcessor.Process(programState, token); }
             else if (curChar == Syntax.EndStatement) { EndStatementProcessor.Process(programState, token); }
             else if (curChar == Syntax.OpenBrace) { OpenBraceProcessor.Process(programState, token); }
             else if (curChar == Syntax.CloseBrace) { CloseBraceProcessor.Process(programState, token); }
             else if (curChar == Syntax.DoubleQoute) { DoubleQuoteProcessor.Process(programState, token); }
+            else if ((curChar == Syntax.Space 
+                || curChar == Syntax.Tab 
+                || curChar == Syntax.CarriageReturn 
+                || curChar == Syntax.Newline) 
+                && !programState.CurrentTokenStack.Contains(TokenType.String))
+            {
+                return; 
+            }
             else
             {
                 token += curChar;

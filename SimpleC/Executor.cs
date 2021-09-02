@@ -20,7 +20,6 @@ namespace SimpleC
             }
         }
 
-
         private static void ExecuteMethod(ProgramState programState, MethodCallTableEntry methodCall)
         {
             Debug.Log($"Calling method: {methodCall.MethodName}");

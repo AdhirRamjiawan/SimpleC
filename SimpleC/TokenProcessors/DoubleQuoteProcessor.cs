@@ -32,11 +32,13 @@ namespace SimpleC.TokenProcessors
                     programState.ExecutionSequence.Add(methodCall.ID);
                 }
 
-                programState.CurrentTokenStack.Push(TokenType.Symbol);
+                programState.CurrentTokenStack.Clear();
             }
             else
             {
                 Debug.Log("starting string");
+
+                programState.CurrentTokenStack.Push(TokenType.String);
             }
 
             programState.StringStarted = !programState.StringStarted;

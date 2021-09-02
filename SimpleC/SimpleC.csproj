@@ -9,6 +9,9 @@
     <None Update="Examples\helloworld.sc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Examples\printnum.sc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Examples\triangle.sc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
