@@ -33,18 +33,19 @@ namespace SimpleC
             else
             {
 
-                token += curChar;
-
                 if (!Syntax.IsWhitespace(curChar) || programState.WhitespaceImportant)
                 {
-                   // token += curChar;
 
-                    /*if (Syntax.IntLiteralForm.IsMatch(token))
+                    token += curChar;
+
+
+
+                    if (Syntax.IntLiteralForm.IsMatch(token))
                     {
                         Debug.Log($"int literal {token}");
                         programState.PreviousToken = token;
                         token = string.Empty;
-                    }*/
+                    }
 
                     return;
                 }
@@ -64,7 +65,9 @@ namespace SimpleC
                         }
                         
                     }
+
                 }
+
             }
 
             programState.PreviousToken = token;
