@@ -11,6 +11,12 @@ namespace SimpleC.DataStructures
         String = 0
     }
 
+    internal enum VariableType
+    {
+        String,
+        Int
+    }
+
     internal enum TokenType
     {
         String = 0,
@@ -37,15 +43,27 @@ namespace SimpleC.DataStructures
         public List<MethodParameter> Parameters;
     }
 
+    internal class VariableTableEntry
+    {
+        public int ID;
+        public string VariableName;
+        public VariableType Type;
+    }
+
     internal class ProgramState
     {
+        public bool WhitespaceImportant = false;
         public bool StringStarted = false;
         public string PreviousToken = string.Empty;
+
         public int CurrentMethodId = -1;
+        public int CurrentIndentifer = -1;
+
         public Stack<TokenType> CurrentTokenStack = new Stack<TokenType>();
 
         public List<StringTableEntry> StringTable = new List<StringTableEntry>();
         public List<MethodCallTableEntry> MethodCallsTable = new List<MethodCallTableEntry>();
+        public List<VariableTableEntry> VariablesTable = new List<VariableTableEntry>();
         public List<int> ExecutionSequence = new List<int>();
     }
 }

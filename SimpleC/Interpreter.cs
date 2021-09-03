@@ -22,28 +22,54 @@ namespace SimpleC
 
         private static void ProcessCurrentCharacter(ProgramState programState, ref string token, char curChar)
         {
-            if      (curChar == Syntax.OpenCurlyBrace) { OpenCurlyBraceProcessor.Process(programState, token); }
+
+            if      (curChar == Syntax.OpenCurlyBrace)  { OpenCurlyBraceProcessor.Process(programState, token);  }
             else if (curChar == Syntax.CloseCurlyBrace) { CloseCurlyBraceProcessor.Process(programState, token); }
-            else if (curChar == Syntax.EndStatement) { EndStatementProcessor.Process(programState, token); }
-            else if (curChar == Syntax.OpenBrace) { OpenBraceProcessor.Process(programState, token); }
-            else if (curChar == Syntax.CloseBrace) { CloseBraceProcessor.Process(programState, token); }
-            else if (curChar == Syntax.DoubleQoute) { DoubleQuoteProcessor.Process(programState, token); }
-            else if ((curChar == Syntax.Space 
-                || curChar == Syntax.Tab 
-                || curChar == Syntax.CarriageReturn 
-                || curChar == Syntax.Newline) 
-                && !programState.CurrentTokenStack.Contains(TokenType.String))
-            {
-                return; 
-            }
+            else if (curChar == Syntax.EndStatement)    { EndStatementProcessor.Process(programState, token);    }
+            else if (curChar == Syntax.OpenBrace)       { OpenBraceProcessor.Process(programState, token);       }
+            else if (curChar == Syntax.CloseBrace)      { CloseBraceProcessor.Process(programState, token);      }
+            else if (curChar == Syntax.DoubleQoute)     { DoubleQuoteProcessor.Process(programState, token);     }
+            else if (curChar == Syntax.Assignment)      { AssignmentProcessor.Process(programState, token);      }
             else
             {
+
                 token += curChar;
-                return;
+
+                if (!Syntax.IsWhitespace(curChar) || programState.WhitespaceImportant)
+                {
+                   // token += curChar;
+
+                    /*if (Syntax.IntLiteralForm.IsMatch(token))
+                    {
+                        Debug.Log($"int literal {token}");
+                        programState.PreviousToken = token;
+                        token = string.Empty;
+                    }*/
+
+                    return;
+                }
+                else
+                {
+                    // Might be a type, identifier or method name?
+
+                    if (token == Types.Int)
+                    {
+                        Debug.Log($"type {token}");
+                    }
+                    else
+                    {
+                        if (Syntax.VariableForm.IsMatch(token) && !programState.StringStarted)
+                        {
+                            Debug.Log($"variable {token}");
+                        }
+                        
+                    }
+                }
             }
 
             programState.PreviousToken = token;
             token = string.Empty;
+
         }
     }
 }

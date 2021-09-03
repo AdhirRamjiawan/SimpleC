@@ -32,6 +32,7 @@ namespace SimpleC.TokenProcessors
                     programState.ExecutionSequence.Add(methodCall.ID);
                 }
 
+                programState.WhitespaceImportant = false;
                 programState.CurrentTokenStack.Clear();
             }
             else
@@ -39,6 +40,7 @@ namespace SimpleC.TokenProcessors
                 Debug.Log("starting string");
 
                 programState.CurrentTokenStack.Push(TokenType.String);
+                programState.WhitespaceImportant = true;
             }
 
             programState.StringStarted = !programState.StringStarted;

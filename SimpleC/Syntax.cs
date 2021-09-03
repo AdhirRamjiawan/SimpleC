@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SimpleC
@@ -19,5 +20,16 @@ namespace SimpleC
         internal const char Tab = '\t';
         internal const char CarriageReturn = '\r';
         internal const char Newline = '\n';
+
+        internal static readonly Regex VariableForm = new Regex("^[a-zA-Z][a-zA-Z0-9]*$");
+        internal static readonly Regex IntLiteralForm = new Regex("^[0-9]+$");
+
+        public static bool IsWhitespace(char currentChar)
+        {
+            return currentChar == Tab
+                || currentChar == Space
+                || currentChar == Newline
+                || currentChar == CarriageReturn;
+        }
     }
 }
