@@ -14,13 +14,13 @@ namespace SimpleC
             {
                 char currentChar = sourceCode[sourceCodeIndex];
 
-                ProcessCurrentCharacter(programState, ref token, currentChar);
+                ProcessCurrentCharacter(programState, sourceCode, sourceCodeIndex, ref token, currentChar);
 
                 sourceCodeIndex++;
             }
         }
 
-        private static void ProcessCurrentCharacter(ProgramState programState, ref string token, char curChar)
+        private static void ProcessCurrentCharacter(ProgramState programState, string sourceCode, int sourceCodeIndex, ref string token, char curChar)
         {
 
             if      (curChar == Syntax.OpenCurlyBrace)  { OpenCurlyBraceProcessor.Process(programState, token);  }
@@ -37,14 +37,15 @@ namespace SimpleC
                 {
 
                     token += curChar;
-
-
-
+                        
                     if (Syntax.IntLiteralForm.IsMatch(token))
                     {
-                        Debug.Log($"int literal {token}");
-                        programState.PreviousToken = token;
-                        token = string.Empty;
+                        IntLiteralProcessor.Process(programState, ref token);
+                    }
+                    else if (Syntax.VariableForm.IsMatch(token)
+                        && programState.PreviousToken != "")
+                    {
+                        VariableReferenceProcessor.Process(programState, token);
                     }
 
                     return;
@@ -55,13 +56,13 @@ namespace SimpleC
 
                     if (token == Types.Int)
                     {
-                        Debug.Log($"type {token}");
+                        IntTypeProcessor.Process(programState, token);
                     }
                     else
                     {
                         if (Syntax.VariableForm.IsMatch(token) && !programState.StringStarted)
                         {
-                            Debug.Log($"variable {token}");
+                           // VariableProcessor.Process(programState, token);
                         }
                         
                     }

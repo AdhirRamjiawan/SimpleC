@@ -13,7 +13,7 @@ namespace SimpleC.TokenProcessors
         {
             if (programState.StringStarted)
             {
-                Debug.Log($"string found: \"{token}\"");
+                Debug.Log($"string literal: \"{token}\"");
                 Debug.Log("ending string");
 
                 var stringID = programState.StringTable.Count;

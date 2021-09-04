@@ -21,7 +21,11 @@ namespace SimpleC.DataStructures
     {
         String = 0,
         Method,
-        Symbol
+        Symbol,
+        IntType,
+        Assignment,
+        IntLiteral,
+        Identifier
     }
 
     internal class StringTableEntry
@@ -48,16 +52,18 @@ namespace SimpleC.DataStructures
         public int ID;
         public string VariableName;
         public VariableType Type;
+        public object Value;
     }
 
     internal class ProgramState
     {
-        public bool WhitespaceImportant = false;
         public bool StringStarted = false;
+        public bool WhitespaceImportant = false;
         public string PreviousToken = string.Empty;
 
         public int CurrentMethodId = -1;
-        public int CurrentIndentifer = -1;
+        public int CurrentIndentiferId = -1;
+        public object CurrentVariableDefault = null;
 
         public Stack<TokenType> CurrentTokenStack = new Stack<TokenType>();
 

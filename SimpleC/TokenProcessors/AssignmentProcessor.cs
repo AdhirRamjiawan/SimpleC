@@ -12,7 +12,7 @@ namespace SimpleC.TokenProcessors
         internal static void Process(ProgramState programState, string token)
         {
             Debug.Log("assingment");
-            programState.CurrentTokenStack.Push(TokenType.Symbol);
+            programState.CurrentTokenStack.Push(TokenType.Assignment);
         }
     }
 }
